@@ -29,6 +29,7 @@ function stackIngredients(selectedMeals) {
           name: ingredient.name,
           quantity: Number(ingredient.quantity),
           unit: ingredient.unit,
+          category: ingredient.category ?? 'other',
           mealSources: [meal.name],
         });
       }
@@ -139,6 +140,7 @@ export default function MealPlanner({ onBack, onCheckoutSuccess }) {
             return addDoc(collection(db, 'items'), {
               text: `${item.name} (${item.quantity}${item.unit})`,
               itemType: 'meal',
+              category: item.category ?? 'other',
               mealSources: item.mealSources,
               order,
               createdAt: Date.now(),

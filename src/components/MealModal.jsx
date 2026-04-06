@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { detectCategory, cycleCategory, CATEGORIES } from '../utils/categories';
 import './MealModal.css';
 
 const UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'packs', 'tbsp', 'tsp', 'cup', 'handful', 'pinch'];
@@ -8,6 +9,8 @@ function IngredientRow({ ingredient, index, suggestions, onChange, onRemove }) {
   const filtered = ingredient.name.length > 0
     ? suggestions.filter(s => s.toLowerCase().includes(ingredient.name.toLowerCase()) && s.toLowerCase() !== ingredient.name.toLowerCase())
     : [];
+
+  const cat = CATEGORIES[ingredient.category ?? 'other'];
 
   return (
     <div className="ingredient-row">
@@ -20,6 +23,14 @@ function IngredientRow({ ingredient, index, suggestions, onChange, onRemove }) {
           onFocus={() => setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         />
+        <button
+          type="button"
+          className={`ingredient-row__category ingredient-row__category--${ingredient.category ?? 'other'}`}
+          onClick={() => onChange(index, 'category', cycleCategory(ingredient.category ?? 'other'))}
+          title="Tap to change category"
+        >
+          {cat.emoji} {cat.label}
+        </button>
         {showSuggestions && filtered.length > 0 && (
           <ul className="ingredient-row__suggestions">
             {filtered.slice(0, 5).map(s => (
@@ -57,7 +68,9 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
   const isNew = meal === null;
   const [name, setName] = useState(meal?.name ?? '');
   const [ingredients, setIngredients] = useState(
-    meal?.ingredients?.length > 0 ? meal.ingredients : []
+    meal?.ingredients?.length > 0
+      ? meal.ingredients.map(ing => ({ ...ing, category: detectCategory(ing.name) }))
+      : []
   );
   const [confirmDelete, setConfirmDelete] = useState(false);
   const nameRef = useRef(null);
@@ -73,16 +86,18 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
 
   function handleIngredientChange(index, field, value) {
     setIngredients(prev =>
-      prev.map((ing, i) =>
-        i === index
-          ? { ...ing, [field]: field === 'quantity' ? value : value }
-          : ing
-      )
+      prev.map((ing, i) => {
+        if (i !== index) return ing;
+        if (field === 'name') {
+          return { ...ing, name: value, category: detectCategory(value) };
+        }
+        return { ...ing, [field]: value };
+      })
     );
   }
 
   function handleAddIngredient() {
-    setIngredients(prev => [...prev, { name: '', quantity: '', unit: 'g' }]);
+    setIngredients(prev => [...prev, { name: '', quantity: '', unit: 'g', category: 'other' }]);
   }
 
   function handleRemoveIngredient(index) {
@@ -153,13 +168,15 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
               </button>
             )
           )}
-          <button
-            className="meal-modal__save"
-            onClick={handleSave}
-            disabled={!name.trim()}
-          >
-            {isNew ? 'Add meal' : 'Save changes'}
-          </button>
+          {!confirmDelete && (
+            <button
+              className="meal-modal__save"
+              onClick={handleSave}
+              disabled={!name.trim()}
+            >
+              {isNew ? 'Add meal' : 'Save changes'}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -5,11 +5,12 @@ import './ItemCard.css';
 
 const MAX_CHARS = 80;
 
-export default function ItemCard({ item, onComplete, onEdit }) {
+export default function ItemCard({ item, onTick, onEdit }) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(item.text);
   const inputRef = useRef(null);
   const isMealItem = item.itemType === 'meal';
+  const isTicked = !!item.ticked;
 
   const {
     attributes,
@@ -35,7 +36,7 @@ export default function ItemCard({ item, onComplete, onEdit }) {
 
   function handleCardClick(e) {
     if (e.target.closest('.item-card__tick') || e.target.closest('.item-card__drag')) return;
-    if (isMealItem) return; // meal items are not manually editable
+    if (isMealItem || isTicked) return;
     setEditing(true);
     setEditText(item.text);
   }
@@ -57,7 +58,7 @@ export default function ItemCard({ item, onComplete, onEdit }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`item-card ${isMealItem ? 'item-card--meal' : ''} ${isDragging ? 'item-card--dragging' : ''}`}
+      className={`item-card ${isMealItem ? 'item-card--meal' : ''} ${isTicked ? 'item-card--ticked' : ''} ${isDragging ? 'item-card--dragging' : ''}`}
     >
       <button
         className="item-card__drag"
@@ -86,16 +87,18 @@ export default function ItemCard({ item, onComplete, onEdit }) {
             maxLength={MAX_CHARS}
           />
         ) : (
-          <span className="item-card__text">{item.text}</span>
+          <span className={`item-card__text ${isTicked ? 'item-card__text--ticked' : ''}`}>
+            {item.text}
+          </span>
         )}
       </div>
 
       <button
-        className="item-card__tick"
-        onClick={() => onComplete(item.id)}
-        aria-label="Mark as done"
+        className={`item-card__tick ${isTicked ? 'item-card__tick--ticked' : ''}`}
+        onClick={() => onTick(item.id)}
+        aria-label={isTicked ? 'Undo tick' : 'Tick item'}
       >
-        <TickIcon />
+        <TickIcon filled={isTicked} />
       </button>
     </div>
   );
@@ -110,11 +113,11 @@ function DragIcon() {
   );
 }
 
-function TickIcon() {
+function TickIcon({ filled }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
-      <polyline points="9 12 11 14 15 10" />
+      <polyline points="9 12 11 14 15 10" stroke={filled ? '#fff' : 'currentColor'} strokeWidth="2.5" />
     </svg>
   );
 }

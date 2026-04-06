@@ -20,6 +20,13 @@
   cursor: default;
 }
 
+.item-card--ticked {
+  background: #f0fdf4;
+  border-color: #86efac;
+  border-left: 4px solid #22c55e;
+  cursor: default;
+}
+
 .item-card:active {
   transform: scale(0.99);
   box-shadow: 0 1px 4px rgba(109, 40, 217, 0.1);
@@ -74,6 +81,13 @@
   line-height: 1.4;
   word-break: break-word;
   display: block;
+  transition: color 0.2s;
+}
+
+.item-card__text--ticked {
+  color: #86efac;
+  text-decoration: line-through;
+  text-decoration-color: #22c55e;
 }
 
 .item-card__edit-input {
@@ -104,6 +118,9 @@
 }
 
 .item-card__tick:active {
-  color: #6d28d9;
   transform: scale(1.2);
+}
+
+.item-card__tick--ticked {
+  color: #22c55e;
 }

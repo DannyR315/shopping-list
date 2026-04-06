@@ -114,13 +114,17 @@
 .ingredient-row {
   display: flex;
   gap: 6px;
-  align-items: center;
+  align-items: flex-start;
+  isolation: isolate;
 }
 
 .ingredient-row__name-wrap {
   flex: 1;
   position: relative;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .ingredient-row__name {
@@ -140,6 +144,32 @@
 .ingredient-row__name:focus {
   border-color: #6d28d9;
   background: #fff;
+}
+
+.ingredient-row__category {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.ingredient-row__category--meat {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.ingredient-row__category--veg {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ingredient-row__category--other {
+  background: #ede9fe;
+  color: #6d28d9;
 }
 
 .ingredient-row__suggestions {

@@ -23,6 +23,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { db } from '../firebase';
+import { CATEGORIES } from '../utils/categories';
 import AddItem from './AddItem';
 import ItemCard from './ItemCard';
 import './ShoppingList.css';
@@ -65,8 +66,14 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
     });
   }
 
-  async function handleComplete(id) {
-    await deleteDoc(doc(db, COLLECTION, id));
+  async function handleTick(id) {
+    const item = items.find(i => i.id === id);
+    await updateDoc(doc(db, COLLECTION, id), { ticked: !item.ticked });
+  }
+
+  async function handleCompleteAll() {
+    const ticked = items.filter(i => i.ticked);
+    await Promise.all(ticked.map(i => deleteDoc(doc(db, COLLECTION, i.id))));
   }
 
   async function handleEdit(id, text) {
@@ -77,11 +84,16 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
-    const reordered = arrayMove(items, oldIndex, newIndex);
+    const normalItems = items.filter(i => i.itemType !== 'meal');
+    const oldIndex = normalItems.findIndex((i) => i.id === active.id);
+    const newIndex = normalItems.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
 
-    setItems(reordered);
+    const reordered = arrayMove(normalItems, oldIndex, newIndex);
+    setItems(prev => {
+      const mealItems = prev.filter(i => i.itemType === 'meal');
+      return [...mealItems, ...reordered];
+    });
 
     await Promise.all(
       reordered.map((item, index) =>
@@ -90,10 +102,32 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
     );
   }
 
+  // Split and sort items
+  const mealItems = items
+    .filter(i => i.itemType === 'meal')
+    .sort((a, b) => {
+      const orderA = CATEGORIES[a.category ?? 'other']?.order ?? 2;
+      const orderB = CATEGORIES[b.category ?? 'other']?.order ?? 2;
+      return orderA - orderB;
+    });
+
+  const normalItems = items.filter(i => i.itemType !== 'meal');
+  const tickedCount = items.filter(i => i.ticked).length;
+
+  // Group meal items by category for section headers
+  const mealGroups = Object.entries(CATEGORIES)
+    .sort((a, b) => a[1].order - b[1].order)
+    .map(([key, cat]) => ({
+      key,
+      cat,
+      items: mealItems.filter(i => (i.category ?? 'other') === key),
+    }))
+    .filter(g => g.items.length > 0);
+
   return (
     <div className="shopping-list">
       <div className="shopping-list__header">
-        <h1 className="shopping-list__title">🛒 Shopping List <span className="shopping-list__version">v1.1</span></h1>
+        <h1 className="shopping-list__title">🛒 Shopping List <span className="shopping-list__version">v1.2</span></h1>
         <div className="shopping-list__header-right">
           {items.length > 0 && (
             <span className="shopping-list__count">{items.length}</span>
@@ -110,7 +144,7 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
 
       <AddItem onAdd={handleAdd} />
 
-      <div className="shopping-list__items">
+      <div className={`shopping-list__items ${tickedCount > 0 ? 'shopping-list__items--with-bar' : ''}`}>
         {loading ? (
           <p className="shopping-list__empty">Loading...</p>
         ) : items.length === 0 ? (
@@ -119,24 +153,64 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
             <p className="shopping-list__empty-hint">Add something above!</p>
           </div>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-              {items.map((item) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  onComplete={handleComplete}
-                  onEdit={handleEdit}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
+          <>
+            {/* Meal items — grouped by category, fixed order */}
+            {mealGroups.map(group => (
+              <div key={group.key}>
+                <div className="shopping-list__section-header">
+                  <span>{group.cat.emoji} {group.cat.label}</span>
+                </div>
+                {group.items.map(item => (
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    onTick={handleTick}
+                    onEdit={handleEdit}
+                  />
+                ))}
+              </div>
+            ))}
+
+            {/* Normal items — draggable */}
+            {normalItems.length > 0 && (
+              <>
+                {mealGroups.length > 0 && (
+                  <div className="shopping-list__section-header">
+                    <span>🛍️ Shopping</span>
+                  </div>
+                )}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={normalItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                    {normalItems.map((item) => (
+                      <ItemCard
+                        key={item.id}
+                        item={item}
+                        onTick={handleTick}
+                        onEdit={handleEdit}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </>
+            )}
+          </>
         )}
       </div>
+
+      {tickedCount > 0 && (
+        <div className="shopping-list__complete-bar">
+          <span className="shopping-list__complete-count">
+            {tickedCount} item{tickedCount > 1 ? 's' : ''} ticked
+          </span>
+          <button className="shopping-list__complete-btn" onClick={handleCompleteAll}>
+            Complete list
+          </button>
+        </div>
+      )}
 
       {successMsg && (
         <div className="shopping-list__toast">
