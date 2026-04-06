@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "WebSearch",
+      "WebFetch(domain:colorswall.com)",
+      "WebFetch(domain:listonic.com)",
+      "WebFetch(domain:uisurgeon.com)",
+      "WebFetch(domain:www.colorlib.com)",
+      "WebFetch(domain:www.wearedevelopers.com)",
+      "WebFetch(domain:nathatype.com)"
+    ]
+  }
+}

@@ -1,0 +1,163 @@
+.meal-planner {
+  min-height: 100dvh;
+  background: #f5f3ff;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-planner__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 16px;
+  background: #6d28d9;
+  flex-shrink: 0;
+}
+
+.meal-planner__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: background 0.2s;
+  -webkit-appearance: none;
+}
+
+.meal-planner__back:active {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.meal-planner__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.meal-planner__add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: background 0.2s;
+  -webkit-appearance: none;
+}
+
+.meal-planner__add-btn:active {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.meal-planner__content {
+  flex: 1;
+  padding: 16px 16px 100px;
+  overflow-y: auto;
+}
+
+.meal-planner__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.meal-planner__empty {
+  text-align: center;
+  color: #9d8ec4;
+  padding: 60px 24px 0;
+  font-size: 16px;
+  margin: 0;
+}
+
+.meal-planner__empty-icon {
+  font-size: 52px;
+  margin-bottom: 12px;
+}
+
+.meal-planner__empty-hint {
+  font-size: 14px;
+  color: #c4b5fd;
+  margin-top: 6px;
+}
+
+.meal-planner__footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, #f5f3ff 70%, transparent);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.meal-planner__checkout {
+  width: 100%;
+  max-width: 600px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: #6d28d9;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.35);
+  transition: background 0.2s, transform 0.1s;
+  -webkit-appearance: none;
+}
+
+.meal-planner__checkout:active {
+  background: #5b21b6;
+  transform: scale(0.98);
+}
+
+.meal-planner__toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  animation: toastIn 0.3s ease;
+  z-index: 200;
+}
+
+.meal-planner__toast--success {
+  background: #1e1040;
+  color: #fff;
+}
+
+.meal-planner__toast--error {
+  background: #e05555;
+  color: #fff;
+  white-space: normal;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
