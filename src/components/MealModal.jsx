@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './MealModal.css';
 
-const UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'tbsp', 'tsp', 'cup', 'handful', 'pinch'];
+const UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'packs', 'tbsp', 'tsp', 'cup', 'handful', 'pinch'];
 
 function IngredientRow({ ingredient, index, suggestions, onChange, onRemove }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -65,6 +65,11 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
   useEffect(() => {
     if (isNew) nameRef.current?.focus();
   }, [isNew]);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
 
   function handleIngredientChange(index, field, value) {
     setIngredients(prev =>
