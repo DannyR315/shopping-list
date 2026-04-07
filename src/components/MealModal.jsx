@@ -69,7 +69,7 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
   const [name, setName] = useState(meal?.name ?? '');
   const [ingredients, setIngredients] = useState(
     meal?.ingredients?.length > 0
-      ? meal.ingredients.map(ing => ({ ...ing, category: detectCategory(ing.name) }))
+      ? meal.ingredients.map(ing => ({ ...ing, category: ing.category ?? detectCategory(ing.name) }))
       : []
   );
   const [confirmDelete, setConfirmDelete] = useState(false);

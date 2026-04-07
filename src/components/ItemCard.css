@@ -35,6 +35,9 @@
 .item-card--dragging {
   box-shadow: 0 8px 24px rgba(109, 40, 217, 0.18);
   cursor: grabbing;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .item-card__drag {

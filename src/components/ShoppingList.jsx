@@ -127,7 +127,7 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
   return (
     <div className="shopping-list">
       <div className="shopping-list__header">
-        <h1 className="shopping-list__title">🛒 Shopping List <span className="shopping-list__version">v1.2</span></h1>
+        <h1 className="shopping-list__title">🛒 Shopping List <span className="shopping-list__version">v1.3</span></h1>
         <div className="shopping-list__header-right">
           {items.length > 0 && (
             <span className="shopping-list__count">{items.length}</span>
