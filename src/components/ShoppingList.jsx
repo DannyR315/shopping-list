@@ -9,21 +9,8 @@ import {
   query,
   orderBy,
 } from 'firebase/firestore';
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from '@dnd-kit/sortable';
 import { db } from '../firebase';
-import { CATEGORIES } from '../utils/categories';
+import { CATEGORIES, detectCategory } from '../utils/categories';
 import AddItem from './AddItem';
 import ItemCard from './ItemCard';
 import './ShoppingList.css';
@@ -41,11 +28,6 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
     }
   }, [successMsg]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
-  );
-
   useEffect(() => {
     const q = query(collection(db, COLLECTION), orderBy('order', 'asc'));
     const unsub = onSnapshot(q, (snapshot) => {
@@ -61,6 +43,7 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
     await addDoc(collection(db, COLLECTION), {
       text,
       itemType: 'normal',
+      category: detectCategory(text),
       order: maxOrder + 1,
       createdAt: Date.now(),
     });
@@ -77,57 +60,30 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
   }
 
   async function handleEdit(id, text) {
-    await updateDoc(doc(db, COLLECTION, id), { text });
+    await updateDoc(doc(db, COLLECTION, id), {
+      text,
+      category: detectCategory(text),
+    });
   }
 
-  async function handleDragEnd(event) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const normalItems = items.filter(i => i.itemType !== 'meal');
-    const oldIndex = normalItems.findIndex((i) => i.id === active.id);
-    const newIndex = normalItems.findIndex((i) => i.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const reordered = arrayMove(normalItems, oldIndex, newIndex);
-    setItems(prev => {
-      const mealItems = prev.filter(i => i.itemType === 'meal');
-      return [...mealItems, ...reordered];
-    });
-
-    await Promise.all(
-      reordered.map((item, index) =>
-        updateDoc(doc(db, COLLECTION, item.id), { order: index })
-      )
-    );
-  }
-
-  // Split and sort items
-  const mealItems = items
-    .filter(i => i.itemType === 'meal')
-    .sort((a, b) => {
-      const orderA = CATEGORIES[a.category ?? 'other']?.order ?? 2;
-      const orderB = CATEGORIES[b.category ?? 'other']?.order ?? 2;
-      return orderA - orderB;
-    });
-
-  const normalItems = items.filter(i => i.itemType !== 'meal');
-  const tickedCount = items.filter(i => i.ticked).length;
-
-  // Group meal items by category for section headers
-  const mealGroups = Object.entries(CATEGORIES)
+  // Group all items by category, sorted by category order then item order
+  const categoryGroups = Object.entries(CATEGORIES)
     .sort((a, b) => a[1].order - b[1].order)
     .map(([key, cat]) => ({
       key,
       cat,
-      items: mealItems.filter(i => (i.category ?? 'other') === key),
+      items: items
+        .filter(i => (i.category ?? 'other') === key)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     }))
     .filter(g => g.items.length > 0);
+
+  const tickedCount = items.filter(i => i.ticked).length;
 
   return (
     <div className="shopping-list">
       <div className="shopping-list__header">
-        <h1 className="shopping-list__title">🛒 Shopping List <span className="shopping-list__version">v1.3</span></h1>
+        <h1 className="shopping-list__title">🛒 Shopping List <span className="shopping-list__version">v1.4</span></h1>
         <div className="shopping-list__header-right">
           {items.length > 0 && (
             <span className="shopping-list__count">{items.length}</span>
@@ -154,49 +110,21 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
           </div>
         ) : (
           <>
-            {/* Meal items — grouped by category, fixed order */}
-            {mealGroups.map(group => (
-              <div key={group.key}>
-                <div className="shopping-list__section-header">
-                  <span>{group.cat.emoji} {group.cat.label}</span>
-                </div>
-                {group.items.map(item => (
-                  <ItemCard
-                    key={item.id}
-                    item={item}
-                    onTick={handleTick}
-                    onEdit={handleEdit}
-                  />
-                ))}
+          {categoryGroups.map(group => (
+            <div key={group.key}>
+              <div className="shopping-list__section-header">
+                <span>{group.cat.emoji} {group.cat.label}</span>
               </div>
-            ))}
-
-            {/* Normal items — draggable */}
-            {normalItems.length > 0 && (
-              <>
-                {mealGroups.length > 0 && (
-                  <div className="shopping-list__section-header">
-                    <span>🛍️ Shopping</span>
-                  </div>
-                )}
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext items={normalItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                    {normalItems.map((item) => (
-                      <ItemCard
-                        key={item.id}
-                        item={item}
-                        onTick={handleTick}
-                        onEdit={handleEdit}
-                      />
-                    ))}
-                  </SortableContext>
-                </DndContext>
-              </>
-            )}
+              {group.items.map(item => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  onTick={handleTick}
+                  onEdit={handleEdit}
+                />
+              ))}
+            </div>
+          ))}
           </>
         )}
       </div>

@@ -59,14 +59,43 @@
   background: #c4b5fd;
 }
 
+.add-item__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-right: 56px;
+}
+
 .add-item__counter {
   font-size: 12px;
   color: #b8aee0;
-  margin: 6px 0 0;
-  text-align: right;
-  padding-right: 56px;
+  margin: 0;
+  margin-left: auto;
 }
 
 .add-item__counter--warn {
   color: #e07a3a;
 }
+
+.add-item__category-preview {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.add-item__category-preview--meat          { background: #fee2e2; color: #b91c1c; }
+.add-item__category-preview--seafood        { background: #dbeafe; color: #1d4ed8; }
+.add-item__category-preview--veg            { background: #dcfce7; color: #15803d; }
+.add-item__category-preview--dairy          { background: #fef9c3; color: #854d0e; }
+.add-item__category-preview--bakery         { background: #fed7aa; color: #9a3412; }
+.add-item__category-preview--frozen         { background: #e0f7fa; color: #006064; }
+.add-item__category-preview--beverages      { background: #e0e7ff; color: #3730a3; }
+.add-item__category-preview--canned         { background: #ffedd5; color: #c2410c; }
+.add-item__category-preview--herbs_spices   { background: #dcfce7; color: #166534; }
+.add-item__category-preview--snacks         { background: #fce7f3; color: #9d174d; }
+.add-item__category-preview--cleaning       { background: #ccfbf1; color: #0f766e; }
+.add-item__category-preview--personal_care  { background: #ffe4e6; color: #9f1239; }
+.add-item__category-preview--pet_supplies   { background: #f7fee7; color: #3f6212; }
+.add-item__category-preview--other          { background: #ede9fe; color: #5b21b6; }

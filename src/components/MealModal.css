@@ -130,7 +130,7 @@
 .ingredient-row__name {
   width: 100%;
   padding: 10px 12px;
-  font-size: 15px;
+  font-size: 16px;
   border: 1.5px solid #ddd6fe;
   border-radius: 10px;
   outline: none;
@@ -157,20 +157,20 @@
   -webkit-appearance: none;
 }
 
-.ingredient-row__category--meat {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.ingredient-row__category--veg {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.ingredient-row__category--other {
-  background: #ede9fe;
-  color: #6d28d9;
-}
+.ingredient-row__category--meat          { background: #fee2e2; color: #b91c1c; }
+.ingredient-row__category--seafood        { background: #dbeafe; color: #1d4ed8; }
+.ingredient-row__category--veg            { background: #dcfce7; color: #15803d; }
+.ingredient-row__category--dairy          { background: #fef9c3; color: #854d0e; }
+.ingredient-row__category--bakery         { background: #fed7aa; color: #9a3412; }
+.ingredient-row__category--frozen         { background: #e0f7fa; color: #006064; }
+.ingredient-row__category--beverages      { background: #e0e7ff; color: #3730a3; }
+.ingredient-row__category--canned         { background: #ffedd5; color: #c2410c; }
+.ingredient-row__category--herbs_spices   { background: #dcfce7; color: #166534; }
+.ingredient-row__category--snacks         { background: #fce7f3; color: #9d174d; }
+.ingredient-row__category--cleaning       { background: #ccfbf1; color: #0f766e; }
+.ingredient-row__category--personal_care  { background: #ffe4e6; color: #9f1239; }
+.ingredient-row__category--pet_supplies   { background: #f7fee7; color: #3f6212; }
+.ingredient-row__category--other          { background: #ede9fe; color: #5b21b6; }
 
 .ingredient-row__suggestions {
   position: absolute;
@@ -203,7 +203,7 @@
 .ingredient-row__qty {
   width: 64px;
   padding: 10px 8px;
-  font-size: 15px;
+  font-size: 16px;
   border: 1.5px solid #ddd6fe;
   border-radius: 10px;
   outline: none;
@@ -223,7 +223,7 @@
 .ingredient-row__unit {
   width: 68px;
   padding: 10px 4px 10px 8px;
-  font-size: 14px;
+  font-size: 16px;
   border: 1.5px solid #ddd6fe;
   border-radius: 10px;
   outline: none;

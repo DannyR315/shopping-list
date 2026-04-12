@@ -14,11 +14,26 @@
 }
 
 .item-card--meal {
-  background: #faf8ff;
-  border-color: #a78bfa;
-  border-left: 4px solid #7c3aed;
   cursor: default;
 }
+
+
+/* Category-coloured left border for normal items */
+.item-card--cat-meat          { border-left: 4px solid #b91c1c; }
+.item-card--cat-seafood        { border-left: 4px solid #1d4ed8; }
+.item-card--cat-veg            { border-left: 4px solid #15803d; }
+.item-card--cat-dairy          { border-left: 4px solid #854d0e; }
+.item-card--cat-bakery         { border-left: 4px solid #9a3412; }
+.item-card--cat-frozen         { border-left: 4px solid #006064; }
+.item-card--cat-beverages      { border-left: 4px solid #3730a3; }
+.item-card--cat-canned         { border-left: 4px solid #c2410c; }
+.item-card--cat-herbs_spices   { border-left: 4px solid #166534; }
+.item-card--cat-snacks         { border-left: 4px solid #9d174d; }
+.item-card--cat-cleaning       { border-left: 4px solid #0f766e; }
+.item-card--cat-personal_care  { border-left: 4px solid #9f1239; }
+.item-card--cat-pet_supplies   { border-left: 4px solid #3f6212; }
+.item-card--cat-other          { border-left: 4px solid #5b21b6; }
+
 
 .item-card--ticked {
   background: #f0fdf4;
@@ -27,37 +42,6 @@
   cursor: default;
 }
 
-.item-card:active {
-  transform: scale(0.99);
-  box-shadow: 0 1px 4px rgba(109, 40, 217, 0.1);
-}
-
-.item-card--dragging {
-  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.18);
-  cursor: grabbing;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.item-card__drag {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #c4b5fd;
-  background: none;
-  border: none;
-  padding: 6px;
-  cursor: grab;
-  flex-shrink: 0;
-  border-radius: 8px;
-  touch-action: none;
-}
-
-.item-card__drag:active {
-  cursor: grabbing;
-  color: #9d8ec4;
-}
 
 .item-card__content {
   flex: 1;

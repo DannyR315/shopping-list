@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { detectCategory } from '../utils/categories';
+import { CATEGORIES } from '../utils/categories';
 import './AddItem.css';
 
 const MAX_CHARS = 80;
@@ -15,6 +17,8 @@ export default function AddItem({ onAdd }) {
   }
 
   const remaining = MAX_CHARS - text.length;
+  const detectedKey = text.trim() ? detectCategory(text) : null;
+  const detectedCat = detectedKey ? CATEGORIES[detectedKey] : null;
 
   return (
     <div className="add-item">
@@ -37,9 +41,16 @@ export default function AddItem({ onAdd }) {
         </button>
       </form>
       {text.length > 0 && (
-        <p className={`add-item__counter ${remaining <= 10 ? 'add-item__counter--warn' : ''}`}>
-          {remaining} left
-        </p>
+        <div className="add-item__footer">
+          {detectedCat && (
+            <span className={`add-item__category-preview add-item__category-preview--${detectedKey}`}>
+              {detectedCat.emoji} {detectedCat.label}
+            </span>
+          )}
+          <p className={`add-item__counter ${remaining <= 10 ? 'add-item__counter--warn' : ''}`}>
+            {remaining} left
+          </p>
+        </div>
       )}
     </div>
   );
