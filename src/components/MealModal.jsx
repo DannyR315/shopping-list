@@ -64,7 +64,7 @@ function IngredientRow({ ingredient, index, suggestions, onChange, onRemove }) {
   );
 }
 
-export default function MealModal({ meal, ingredientSuggestions, onSave, onDelete, onClose }) {
+export default function MealModal({ meal, ingredientSuggestions, onSave, onDelete, onClose, isSaving }) {
   const isNew = meal === null;
   const [name, setName] = useState(meal?.name ?? '');
   const [ingredients, setIngredients] = useState(
@@ -73,7 +73,11 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
       : []
   );
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(meal?.photoURL ?? null);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
   const nameRef = useRef(null);
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     if (isNew) nameRef.current?.focus();
@@ -83,6 +87,21 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  function handlePhotoSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+    setPhotoRemoved(false);
+  }
+
+  function handleRemovePhoto() {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    setPhotoRemoved(true);
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  }
 
   function handleIngredientChange(index, field, value) {
     setIngredients(prev =>
@@ -108,8 +127,14 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
     if (!name.trim()) return;
     const validIngredients = ingredients.filter(i => i.name.trim() && i.quantity !== '');
     onSave(
-      { name: name.trim(), ingredients: validIngredients.map(i => ({ ...i, quantity: Number(i.quantity) })) },
-      meal?.id ?? null
+      {
+        name: name.trim(),
+        ingredients: validIngredients.map(i => ({ ...i, quantity: Number(i.quantity) })),
+        photoURL: meal?.photoURL ?? null,
+      },
+      meal?.id ?? null,
+      photoFile,
+      photoRemoved,
     );
   }
 
@@ -124,6 +149,40 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
         </div>
 
         <div className="meal-modal__body">
+          {/* Photo section */}
+          {photoPreview ? (
+            <div className="meal-modal__photo-preview">
+              <img src={photoPreview} className="meal-modal__photo-img" alt="Meal" />
+              <div className="meal-modal__photo-btns">
+                <label className="meal-modal__photo-change">
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    hidden
+                  />
+                  Change photo
+                </label>
+                <button className="meal-modal__photo-remove" onClick={handleRemovePhoto}>
+                  Remove
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className="meal-modal__photo-upload">
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoSelect}
+                hidden
+              />
+              <CameraIcon />
+              <span>Add photo</span>
+            </label>
+          )}
+
           <label className="meal-modal__label">Meal name</label>
           <input
             ref={nameRef}
@@ -172,9 +231,9 @@ export default function MealModal({ meal, ingredientSuggestions, onSave, onDelet
             <button
               className="meal-modal__save"
               onClick={handleSave}
-              disabled={!name.trim()}
+              disabled={!name.trim() || isSaving}
             >
-              {isNew ? 'Add meal' : 'Save changes'}
+              {isSaving ? 'Saving…' : isNew ? 'Add meal' : 'Save changes'}
             </button>
           )}
         </div>
@@ -197,6 +256,15 @@ function RemoveIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+      <circle cx="12" cy="13" r="4" />
     </svg>
   );
 }

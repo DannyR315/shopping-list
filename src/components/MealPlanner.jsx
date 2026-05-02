@@ -8,7 +8,13 @@ import {
   getDocs,
   doc,
 } from 'firebase/firestore';
-import { db } from '../firebase';
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'firebase/storage';
+import { db, storage } from '../firebase';
 import MealCard from './MealCard';
 import MealModal from './MealModal';
 import './MealPlanner.css';
@@ -43,6 +49,7 @@ export default function MealPlanner({ onBack, onCheckoutSuccess }) {
   const [selected, setSelected] = useState(new Set());
   const [modalMeal, setModalMeal] = useState(undefined); // undefined=closed, null=new, object=edit
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveMealSuccess, setSaveMealSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [checkoutError, setCheckoutError] = useState(false);
@@ -67,13 +74,37 @@ export default function MealPlanner({ onBack, onCheckoutSuccess }) {
     });
   }
 
-  async function handleSaveMeal(mealData, existingId) {
+  async function handleSaveMeal(mealData, existingId, photoFile, photoRemoved) {
+    setIsSaving(true);
     try {
+      let photoURL = mealData.photoURL ?? null;
+
       if (existingId) {
-        await updateDoc(doc(db, 'meals', existingId), mealData);
+        if (photoFile) {
+          const ref = storageRef(storage, `meal-photos/${existingId}`);
+          await uploadBytes(ref, photoFile);
+          photoURL = await getDownloadURL(ref);
+        } else if (photoRemoved) {
+          try {
+            await deleteObject(storageRef(storage, `meal-photos/${existingId}`));
+          } catch (_) {}
+          photoURL = null;
+        }
+        await updateDoc(doc(db, 'meals', existingId), { ...mealData, photoURL });
       } else {
-        await addDoc(collection(db, 'meals'), { ...mealData, createdAt: Date.now() });
+        const docRef = await addDoc(collection(db, 'meals'), {
+          ...mealData,
+          photoURL: null,
+          createdAt: Date.now(),
+        });
+        if (photoFile) {
+          const ref = storageRef(storage, `meal-photos/${docRef.id}`);
+          await uploadBytes(ref, photoFile);
+          photoURL = await getDownloadURL(ref);
+          await updateDoc(docRef, { photoURL });
+        }
       }
+
       setSaveMealSuccess(true);
       setTimeout(() => setSaveMealSuccess(false), 3000);
     } catch (err) {
@@ -81,11 +112,15 @@ export default function MealPlanner({ onBack, onCheckoutSuccess }) {
       setSaveError(true);
       setTimeout(() => setSaveError(false), 3500);
     } finally {
+      setIsSaving(false);
       setModalMeal(undefined);
     }
   }
 
   async function handleDeleteMeal(id) {
+    try {
+      await deleteObject(storageRef(storage, `meal-photos/${id}`));
+    } catch (_) {}
     await deleteDoc(doc(db, 'meals', id));
     setSelected(prev => { const n = new Set(prev); n.delete(id); return n; });
     setModalMeal(undefined);
@@ -233,6 +268,7 @@ export default function MealPlanner({ onBack, onCheckoutSuccess }) {
           onSave={handleSaveMeal}
           onDelete={handleDeleteMeal}
           onClose={() => setModalMeal(undefined)}
+          isSaving={isSaving}
         />
       )}
     </div>
