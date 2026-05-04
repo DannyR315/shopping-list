@@ -14,7 +14,8 @@
       "Bash(Select-Object FullName)",
       "Bash(ConvertTo-Csv -NoTypeInformation)",
       "Bash(Out-String)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(firebase projects:list)"
     ]
   }
 }

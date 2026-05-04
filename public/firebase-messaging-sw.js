@@ -3,12 +3,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-com
 
 // Fill in your Firebase config values — same as the VITE_FIREBASE_* values in your .env
 firebase.initializeApp({
-  apiKey: 'REPLACE_WITH_VITE_FIREBASE_API_KEY',
-  authDomain: 'REPLACE_WITH_VITE_FIREBASE_AUTH_DOMAIN',
-  projectId: 'REPLACE_WITH_VITE_FIREBASE_PROJECT_ID',
-  storageBucket: 'REPLACE_WITH_VITE_FIREBASE_STORAGE_BUCKET',
-  messagingSenderId: 'REPLACE_WITH_VITE_FIREBASE_MESSAGING_SENDER_ID',
-  appId: 'REPLACE_WITH_VITE_FIREBASE_APP_ID',
+  apiKey: 'AIzaSyCNdq_b0qazj08x1afQYr6xi5nJoDRjpzQ',
+  authDomain: 'shopping-list-81716.firebaseapp.com',
+  projectId: 'shopping-list-81716',
+  storageBucket: 'shopping-list-81716.firebasestorage.app',
+  messagingSenderId: '986216694615',
+  appId: '1:986216694615:web:e06b3a6ca769ed332af412',
 });
 
 const messaging = firebase.messaging();
