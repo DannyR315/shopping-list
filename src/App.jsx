@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
 import { getToken, onMessage } from 'firebase/messaging';
+import { signInAnonymously } from 'firebase/auth';
 import Login from './components/Login';
 import ShoppingList from './components/ShoppingList';
 import MealPlanner from './components/MealPlanner';
-import { db, messaging } from './firebase';
+import { db, messaging, auth } from './firebase';
 
 function isAuthenticated() {
   return sessionStorage.getItem('auth') === 'true';
@@ -42,6 +43,10 @@ export default function App() {
   const [fcmToken, setFcmToken] = useState(null);
 
   useEffect(() => {
+    signInAnonymously(auth).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (!authed) return;
     registerNotifications().then(setFcmToken).catch(() => {});
   }, [authed]);
@@ -50,7 +55,7 @@ export default function App() {
   useEffect(() => {
     if (!fcmToken) return;
     return onMessage(messaging, (payload) => {
-      setSuccessMsg(payload.notification?.body ?? 'Meals added to your shopping list!');
+      setSuccessMsg(payload.notification?.body ?? 'Shopping list updated!');
     });
   }, [fcmToken]);
 
@@ -65,7 +70,6 @@ export default function App() {
       <MealPlanner
         onBack={() => setView('shopping')}
         onCheckoutSuccess={handleCheckoutSuccess}
-        fcmToken={fcmToken}
       />
     );
   }
@@ -74,6 +78,7 @@ export default function App() {
       onOpenPlanner={() => setView('planner')}
       successMsg={successMsg}
       onClearSuccess={() => setSuccessMsg(null)}
+      fcmToken={fcmToken}
     />
   );
 }

@@ -7,7 +7,7 @@ initializeApp();
 
 exports.notifyOnCheckout = onDocumentCreated('checkouts/{checkoutId}', async (event) => {
   const data = event.data.data();
-  const { mealNames = [], senderToken } = data;
+  const { itemNames = [], senderToken } = data;
 
   // Clean up the trigger document immediately
   await event.data.ref.delete();
@@ -19,8 +19,7 @@ exports.notifyOnCheckout = onDocumentCreated('checkouts/{checkoutId}', async (ev
 
   if (tokens.length === 0) return;
 
-  const nameList = mealNames.join(', ');
-  const body = `${mealNames.length} meal${mealNames.length !== 1 ? 's' : ''} added: ${nameList}`;
+  const body = `${itemNames.length} item${itemNames.length !== 1 ? 's' : ''} completed`;
 
   await getMessaging().sendEachForMulticast({
     tokens,

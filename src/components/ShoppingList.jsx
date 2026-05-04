@@ -17,7 +17,7 @@ import './ShoppingList.css';
 
 const COLLECTION = 'items';
 
-export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess }) {
+export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess, fcmToken }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,6 +57,13 @@ export default function ShoppingList({ onOpenPlanner, successMsg, onClearSuccess
   async function handleCompleteAll() {
     const ticked = items.filter(i => i.ticked);
     await Promise.all(ticked.map(i => deleteDoc(doc(db, COLLECTION, i.id))));
+    try {
+      await addDoc(collection(db, 'checkouts'), {
+        itemNames: ticked.map(i => i.text),
+        senderToken: fcmToken ?? null,
+        timestamp: Date.now(),
+      });
+    } catch (_) {}
   }
 
   async function handleEdit(id, text) {
