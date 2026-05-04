@@ -44,7 +44,7 @@ function stackIngredients(selectedMeals) {
   return Array.from(stack.values());
 }
 
-export default function MealPlanner({ onBack, onCheckoutSuccess }) {
+export default function MealPlanner({ onBack, onCheckoutSuccess, fcmToken }) {
   const [meals, setMeals] = useState([]);
   const [selected, setSelected] = useState(new Set());
   const [modalMeal, setModalMeal] = useState(undefined); // undefined=closed, null=new, object=edit
@@ -183,6 +183,15 @@ export default function MealPlanner({ onBack, onCheckoutSuccess }) {
           }
         })
       );
+
+      // Trigger push notification to the other device
+      try {
+        await addDoc(collection(db, 'checkouts'), {
+          mealNames: selectedMeals.map(m => m.name),
+          senderToken: fcmToken ?? null,
+          timestamp: Date.now(),
+        });
+      } catch (_) {}
 
       setSelected(new Set());
       onCheckoutSuccess();

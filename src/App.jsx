@@ -1,16 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { getToken, onMessage } from 'firebase/messaging';
 import Login from './components/Login';
 import ShoppingList from './components/ShoppingList';
 import MealPlanner from './components/MealPlanner';
+import { db, messaging } from './firebase';
 
 function isAuthenticated() {
   return sessionStorage.getItem('auth') === 'true';
+}
+
+async function registerNotifications() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return null;
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') return null;
+
+  const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+  await navigator.serviceWorker.ready;
+
+  const token = await getToken(messaging, {
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    serviceWorkerRegistration: registration,
+  });
+
+  // Store token in Firestore, keyed by a stable localStorage ID for this device
+  const storedDocId = localStorage.getItem('fcm_doc_id');
+  if (storedDocId) {
+    await setDoc(doc(db, 'tokens', storedDocId), { token, updatedAt: Date.now() });
+  } else {
+    const docRef = await addDoc(collection(db, 'tokens'), { token, updatedAt: Date.now() });
+    localStorage.setItem('fcm_doc_id', docRef.id);
+  }
+
+  return token;
 }
 
 export default function App() {
   const [authed, setAuthed] = useState(isAuthenticated);
   const [view, setView] = useState('shopping');
   const [successMsg, setSuccessMsg] = useState(null);
+  const [fcmToken, setFcmToken] = useState(null);
+
+  useEffect(() => {
+    if (!authed) return;
+    registerNotifications().then(setFcmToken).catch(() => {});
+  }, [authed]);
+
+  // Show a toast when a push arrives while the app is open
+  useEffect(() => {
+    if (!fcmToken) return;
+    return onMessage(messaging, (payload) => {
+      setSuccessMsg(payload.notification?.body ?? 'Meals added to your shopping list!');
+    });
+  }, [fcmToken]);
 
   function handleCheckoutSuccess() {
     setView('shopping');
@@ -23,6 +65,7 @@ export default function App() {
       <MealPlanner
         onBack={() => setView('shopping')}
         onCheckoutSuccess={handleCheckoutSuccess}
+        fcmToken={fcmToken}
       />
     );
   }
