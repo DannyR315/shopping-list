@@ -91,6 +91,25 @@
   z-index: 2;
 }
 
+/* Suggested badge — top left, shown when not selected */
+.meal-card__suggested {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  z-index: 2;
+}
+
 /* Text block — sits above the overlay at the bottom */
 .meal-card__body {
   position: absolute;

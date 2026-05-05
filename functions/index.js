@@ -13,16 +13,31 @@ exports.notifyOnCheckout = onDocumentCreated('checkouts/{checkoutId}', async (ev
   await event.data.ref.delete();
 
   const tokensSnap = await getFirestore().collection('tokens').get();
-  const tokens = tokensSnap.docs
-    .map(d => d.data().token)
-    .filter(t => t && t !== senderToken);
+  const tokens = [...new Set(
+    tokensSnap.docs
+      .map(d => d.data().token)
+      .filter(t => t && t !== senderToken)
+  )];
 
   if (tokens.length === 0) return;
 
-  const body = `${itemNames.length} item${itemNames.length !== 1 ? 's' : ''} completed`;
+  const nameList = itemNames.join(', ');
+  const body = `${itemNames.length} item${itemNames.length !== 1 ? 's' : ''} completed: ${nameList}`;
 
-  await getMessaging().sendEachForMulticast({
+  const result = await getMessaging().sendEachForMulticast({
     tokens,
     notification: { title: 'Shopping list updated', body },
   });
+
+  // Remove docs whose tokens are no longer valid
+  const db = getFirestore();
+  const invalidTokens = new Set(
+    result.responses
+      .map((r, i) => (!r.success ? tokens[i] : null))
+      .filter(Boolean)
+  );
+  if (invalidTokens.size > 0) {
+    const toDelete = tokensSnap.docs.filter(d => invalidTokens.has(d.data().token));
+    await Promise.all(toDelete.map(d => db.collection('tokens').doc(d.id).delete()));
+  }
 });

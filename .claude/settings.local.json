@@ -15,7 +15,16 @@
       "Bash(ConvertTo-Csv -NoTypeInformation)",
       "Bash(Out-String)",
       "Bash(git config *)",
-      "Bash(firebase projects:list)"
+      "Bash(firebase projects:list)",
+      "Bash(curl -s -X POST \"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCNdq_b0qazj08x1afQYr6xi5nJoDRjpzQ\" -H \"Content-Type: application/json\" -d '{\"returnSecureToken\":true}')",
+      "Bash(python3 -c ' *)",
+      "WebFetch(domain:www.bbcgoodfood.com)",
+      "WebFetch(domain:www.mumsnet.com)",
+      "WebFetch(domain:upload.wikimedia.org)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "Bash(curl -s -L -o /tmp/tikka_masala.jpg \"https://upload.wikimedia.org/wikipedia/commons/8/86/Chicken_Tikka_Masala_on_White_Plate_with_Spoon.jpg\")",
+      "Bash(curl -s -L -o /tmp/fajitas.jpg \"https://upload.wikimedia.org/wikipedia/commons/e/e0/Chicken_fajitas_limes.jpg\")",
+      "Read(//tmp/**)"
     ]
   }
 }
