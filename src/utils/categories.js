@@ -92,7 +92,7 @@ const BEVERAGES = [
   'cordial', 'coconut water', 'sports drink', 'protein shake', 'oat milk',
   'almond milk', 'soy milk', 'rice milk',
   // Brand names
-  'pepsi', 'coca-cola', 'coca cola', 'fanta', 'sprite', 'dr pepper',
+  'pepsi', 'coca-cola', 'coca cola', 'coke', 'fanta', 'sprite', 'dr pepper',
   '7up', 'lucozade', 'ribena', 'irn bru', 'red bull', 'monster energy',
   'innocent', 'volvic', 'evian', 'highland spring',
 ];
@@ -145,7 +145,7 @@ const BAKERY = [
 ];
 
 const SNACKS = [
-  'crisp', 'chips', 'chocolate', 'biscuit', 'cookie', 'popcorn',
+  'hummus', 'crisp', 'chips', 'chocolate', 'biscuit', 'cookie', 'popcorn',
   'cracker', 'cereal bar', 'granola bar', 'sweets', 'gummy', 'haribo',
   'pretzel', 'rice cake', 'tortilla chip', 'corn chip', 'trail mix',
   'raisin', 'nut', 'peanut', 'cashew', 'almond', 'walnut', 'pistachio',
